@@ -7,7 +7,7 @@ from murf import Murf
 from dotenv import load_dotenv
 
 # API client
-path = "D:/RGT/Projects/Flet/Tutorial/Text-to-Speech/app.env"
+path = "D:/RGT/Projects/Flet/Tutorial/app.env"
 load_dotenv(path)
 API_KEY = os.getenv("murf_api")
 # print(API_KEY)
