@@ -1,10 +1,13 @@
-# Imports
-import flet as ft
-import requests
+# src/ui/pages.py
+
 import os
+import requests
 import logging
+
+import flet as ft
 from murf import Murf
 from dotenv import load_dotenv
+from .ui_config import *
 
 # API client
 path = "D:/RGT/Projects/Flet/Tutorial/app.env"
@@ -15,11 +18,8 @@ API_KEY = os.getenv("murf_api")
 client = Murf(api_key=API_KEY)
 
 voices = client.text_to_speech.get_voices()
-# for voice in voices:
-    # print(f"Voice ID: {voice.voice_id}, Name: {voice.display_name}")
-    # if voice.voice_id == "en-US-natalie": 
-    #     print(f"Voice ID: {voice.voice_id}, Name: {voice.display_name}")
-    # print(f"Languages: {voice.display_language}, Moods: {voice.available_styles}")
+
+styles = load_styles()
 
 # Voice Settings
 VOICE_MOODS = {
@@ -47,24 +47,25 @@ VOICE_MOODS = {
     }
 }
 
-# Flet App
-def main(page: ft.Page):
+
+def build_main_page(page: ft.Page):
     page.title = "AI friend"
-    page.padding = 40
-    page.bgcolor = "#1E1E2F"
+    page.padding = styles["padding"]["page"]
+    page.bgcolor = styles["colors"]["background"]
     
     # Create UI widgets
     title = ft.Text(
-        page.title, size=42, 
-        weight=ft.FontWeight.BOLD, color="#FFD700")
+        page.title, size=styles["fonts"]["title_size"],
+        weight=ft.FontWeight.BOLD,
+        color=styles["colors"]["primary_text"])
     
     txt_input = ft.TextField(
         label="Enter some text here...",
         width=350,
-        bgcolor="#2A2A3B",
-        color="#ffffff",
-        border_radius=15,
-        border_color="#FFD700"
+        bgcolor=styles["colors"]["container"],
+        color=styles["colors"]["secondary_text"],
+        border_radius=styles["borders"]["radius"],
+        border_color=styles["colors"]["border"]
     )
     
     # voice_selection
@@ -74,8 +75,10 @@ def main(page: ft.Page):
             ft.dropdown.Option(voice) for voice in VOICE_MOODS.keys()
         ],
         width=350,
-        bgcolor="#2A2A3B",
-        color="#ffffff",
+        bgcolor=styles["colors"]["container"],
+        color=styles["colors"]["secondary_text"],
+        # border_radius=styles["borders"]["radius"],
+        # border_color=styles["colors"]["border"],
         value="Miles"
     )   
      
@@ -83,8 +86,8 @@ def main(page: ft.Page):
     mood_selection = ft.Dropdown(
         label="Choose Mood",
         width=350,
-        bgcolor="#2A2A3B",
-        color="#ffffff",
+        bgcolor=styles["colors"]["container"],
+        color=styles["colors"]["secondary_text"],
     )
     
     def update_moods(e=None):
@@ -103,7 +106,7 @@ def main(page: ft.Page):
     voice_speed = ft.Slider(
         min=-30, max=30,
         value=0, divisions=10,
-        label="{value}%",active_color="#FFD700"
+        label="{value}%",active_color=styles["colors"]["primary_text"]
     )
     
     # Generate AI voice
@@ -155,8 +158,8 @@ def main(page: ft.Page):
     # enter_button
     btn_enter = ft.ElevatedButton(
         "Generate Voice",
-        bgcolor="#FFD700",
-        color="#1E1E2F",
+        bgcolor=styles["colors"]["button_bg"],
+        color=styles["colors"]["button_text"],
         on_click=lambda e: save_and_play(),
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=15))
     )
@@ -168,17 +171,21 @@ def main(page: ft.Page):
                 txt_input, 
                 voice_selection, 
                 mood_selection,
-                btn_enter, ft.Text("Adjust Pitch", size=18, 
-                                   weight=ft.FontWeight.BOLD, color="#FFD700"), 
+                btn_enter, ft.Text("Adjust Pitch", size=styles["fonts"]["label_size"], 
+                                   weight=ft.FontWeight.BOLD, color=styles["colors"]["primary_text"]), 
                 voice_speed
             ],
             spacing=15,
             alignment=ft.MainAxisAlignment.CENTER,
         ),
-        padding=20,
-        border_radius=20,
-        bgcolor="#2A2A3B",
-        shadow=ft.BoxShadow(blur_radius=12, spread_radius=2, color="#FFD700")
+        padding=styles["padding"]["container"],
+        border_radius=styles["borders"]["container_radius"],
+        bgcolor=styles["colors"]["container"],
+        shadow=ft.BoxShadow(
+            blur_radius=styles["shadow"]["blur_radius"],
+            spread_radius=styles["shadow"]["spread_radius"],
+            color=styles["colors"]["shadow"]
+        )
     )
     
     page.add(
@@ -189,10 +196,3 @@ def main(page: ft.Page):
         )
     )
     page.update()
-    
-    # page.add(title)
-    # page.add(txt_input)
-    
-# Run App
-if __name__ == "__main__":
-    ft.app(target=main,assets_dir=".")

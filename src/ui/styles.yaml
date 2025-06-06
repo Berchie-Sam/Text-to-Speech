@@ -1,0 +1,25 @@
+colors:
+  background: "#1E1E2F"
+  container: "#2A2A3B"
+  primary_text: "#FFD700"
+  secondary_text: "#ffffff"
+  button_bg: "#FFD700"
+  button_text: "#1E1E2F"
+  shadow: "#FFD700"
+  border: "#FFD700"
+
+fonts:
+  title_size: 42
+  label_size: 18
+
+borders:
+  radius: 15
+  container_radius: 20
+
+padding:
+  page: 40
+  container: 20
+
+shadow:
+  blur_radius: 12
+  spread_radius: 2
