@@ -15,11 +15,16 @@ fonts:
 borders:
   radius: 15
   container_radius: 20
+  
 
 padding:
   page: 40
   container: 20
+  history: 10
 
 shadow:
   blur_radius: 12
   spread_radius: 2
+
+height:
+  history: 200

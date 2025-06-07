@@ -1,25 +1,13 @@
 # src/ui/pages.py
-
-import os
 import requests
 import logging
-
 import flet as ft
-from murf import Murf
-from dotenv import load_dotenv
 from .ui_config import *
-
-# API client
-path = "D:/RGT/Projects/Flet/Tutorial/app.env"
-load_dotenv(path)
-API_KEY = os.getenv("murf_api")
-# print(API_KEY)
- 
-client = Murf(api_key=API_KEY)
-
-voices = client.text_to_speech.get_voices()
+from src.services.tts_client import MurfTTSClient
 
 styles = load_styles()
+tts_client = MurfTTSClient()
+voices = tts_client.get_voices()
 
 # Voice Settings
 VOICE_MOODS = {
@@ -116,28 +104,24 @@ def build_main_page(page: ft.Page):
         if not txt_input.value.strip():
             print("ERROR, you need some text...")
             return None
-        try:
-            response = client.text_to_speech.generate(
-                format="MP3",
-                sample_rate=48000.0,
-                channel_type="STEREO",
-                text=txt_input.value,
-                voice_id=voice_id,
-                style=mood_selection.value,
-                pitch=voice_speed.value
-            )
-            return response.audio_file if hasattr(response, "audio_file") else None
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
         
+        return tts_client.generate_audio(
+        text=txt_input.value,
+        voice_id=voice_id,
+        mood=mood_selection.value,
+        pitch=voice_speed.value
+    )
+    
+    progress_bar = ft.ProgressBar(width=350, visible=False, color=styles["colors"]["primary_text"])    
         
     def save_and_play():
         audio_url = generate_audio()
         if not audio_url:
             print("Error: no audio found..")
             return
-        
+        progress_bar.visible = True
+        btn_enter.disabled = True
+        page.update()
         try:
             response = requests.get(audio_url, stream=True)
             if response.status_code == 200:
@@ -154,7 +138,12 @@ def build_main_page(page: ft.Page):
                 print("Failed to get audio")
         except Exception as e:
             print("ERROR", e)
-                
+        finally:
+            progress_bar.visible = False
+            btn_enter.disabled = False
+            page.update()
+    
+    
     # enter_button
     btn_enter = ft.ElevatedButton(
         "Generate Voice",
@@ -163,7 +152,7 @@ def build_main_page(page: ft.Page):
         on_click=lambda e: save_and_play(),
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=15))
     )
-       
+    
     # UI Container
     input_container = ft.Container(
         content = ft.Column(
@@ -173,7 +162,8 @@ def build_main_page(page: ft.Page):
                 mood_selection,
                 btn_enter, ft.Text("Adjust Pitch", size=styles["fonts"]["label_size"], 
                                    weight=ft.FontWeight.BOLD, color=styles["colors"]["primary_text"]), 
-                voice_speed
+                voice_speed, 
+                progress_bar,
             ],
             spacing=15,
             alignment=ft.MainAxisAlignment.CENTER,
